@@ -2,6 +2,7 @@ package streamproc;
 
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,6 +34,7 @@ public class SPSProcServiceTest {
         Assert.assertNotNull(sseTarget);
     }
 
+    @Ignore
     @Test
     public void testDoStuff() {
         SseEventSource sse = SseEventSource
@@ -42,7 +44,6 @@ public class SPSProcServiceTest {
         sse.register(this::onMessage);
         sse.open();
 
-        //block here, otherwise the test method will complete
         try {
             Thread.sleep(3000);
         } catch (InterruptedException e) {

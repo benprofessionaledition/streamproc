@@ -35,7 +35,7 @@ public class SPSProcService {
         sseTarget = sseClient.target("https://tweet-service.herokuapp.com/sps");
     }
 
-    public void start() {
+    public void start() throws Exception {
         sse = SseEventSource
                 .target(sseTarget)
                 .reconnectingEvery(2, SECONDS)
@@ -44,10 +44,13 @@ public class SPSProcService {
         sse.open();
     }
 
-
     private void onMessage(InboundSseEvent message) {
-        SPSEvent event = getEvent(message);
-        enqueue(event);
+        if (!isCancelled.get()) {
+            SPSEvent event = getEvent(message);
+            enqueue(event);
+        } else {
+            stop();
+        }
     }
 
     private void enqueue(SPSEvent event) {
@@ -72,6 +75,14 @@ public class SPSProcService {
 
     public static void main(String[] args) throws Exception {
         new SPSProcService().start();
+    }
+
+    public void cancel() {
+        isCancelled.set(true);
+    }
+
+    public void stop() {
+        sse.close();
     }
 
 
