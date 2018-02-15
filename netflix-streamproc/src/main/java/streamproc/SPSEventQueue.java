@@ -1,34 +1,75 @@
 package streamproc;
 
-import io.reactivex.disposables.Disposable;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 
-public class SPSEventQueue implements Disposable {
+public class SPSEventQueue {
 
-    private final ConcurrentLinkedQueue<SPSEvent> queue = new ConcurrentLinkedQueue<>();
+    private static final ObjectMapper mapper = new ObjectMapper();
+    private static final Logger logger = LoggerFactory.getLogger(SPSEventQueue.class);
+    private final List<SPSEvent> queue = new LinkedList<>();
 
-    public ConcurrentLinkedQueue<SPSEvent> getQueue() {
+    private long currentTimestamp = 0L;
+
+    public List<SPSEvent> getQueue() {
         return queue;
     }
 
     public boolean enqueue(SPSEvent s) {
+        long timestamp = s.getTime();
+        if (timestamp > currentTimestamp) {
+            LinkedList<SPSEvent> oneSecond = new LinkedList<>(queue);
+            aggregate(oneSecond);
+            clear();
+            currentTimestamp = timestamp;
+        }
         return queue.add(s);
-    }
-
-    public SPSEvent poll() {
-        return queue.poll();
     }
 
     public void clear() {
         queue.clear();
     }
 
-    @Override public void dispose() {
-        clear();
+    void aggregate(List<SPSEvent> oneSecond) {
+        IncrementingHashMap ih = new IncrementingHashMap();
+        oneSecond.stream()
+                .filter(s -> s.getSev().contains("success"))
+                .forEach(ih::add);
+        ih.countMap.entrySet().stream().map(e -> {
+            SPSEvent event = e.getKey();
+            int count = e.getValue();
+            return new SPSSummary(event.getDevice(), count, event.getTitle(), event.getCountry());
+        })
+                .map(s -> {
+                    try {
+                        return mapper.writeValueAsString(s);
+                    } catch (JsonProcessingException e) {
+                        return "Malformed input: " + s;
+                    }
+                })
+                .forEach(System.out::println);
     }
 
-    @Override public boolean isDisposed() {
-        return queue.isEmpty();
+    private static class IncrementingHashMap {
+
+        final HashMap<SPSEvent, Integer> countMap = new HashMap<>();
+
+        Integer add(SPSEvent key) {
+            if (countMap.containsKey(key)) {
+                Integer i = countMap.get(key);
+                return countMap.put(key, i + 1);
+            } else {
+                return countMap.put(key, 1);
+            }
+        }
+
     }
+
+
 }

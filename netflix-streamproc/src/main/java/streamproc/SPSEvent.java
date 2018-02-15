@@ -2,6 +2,8 @@ package streamproc;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import java.util.Objects;
+
 public class SPSEvent {
 
     private String device;
@@ -70,5 +72,23 @@ public class SPSEvent {
         sb.append(", time=").append(time);
         sb.append('}');
         return sb.toString();
+    }
+
+    @Override public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+        SPSEvent spsEvent = (SPSEvent) o;
+        return time == spsEvent.time &&
+                Objects.equals(device, spsEvent.device) &&
+                Objects.equals(sev, spsEvent.sev) &&
+                Objects.equals(title, spsEvent.title) &&
+                Objects.equals(country, spsEvent.country);
+    }
+
+    @Override public int hashCode() {
+
+        return Objects.hash(device, sev, title, country, time);
     }
 }
