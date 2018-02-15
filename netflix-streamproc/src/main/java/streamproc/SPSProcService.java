@@ -47,7 +47,6 @@ public class SPSProcService {
 
     private void onMessage(InboundSseEvent message) {
         SPSEvent event = getEvent(message);
-        logger.debug("{}", event);
         enqueue(event);
     }
 
