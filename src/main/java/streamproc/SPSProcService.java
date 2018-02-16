@@ -64,7 +64,9 @@ public class SPSProcService {
     private void onMessage(InboundSseEvent message) {
         if (!isCancelled.get()) {
             SPSEvent event = getEvent(message);
-            enqueue(event);
+            if (event != null) {
+                enqueue(event);
+            }
         } else {
             stop();
         }
