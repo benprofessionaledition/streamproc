@@ -48,7 +48,9 @@ public class SPSEventQueue {
      * is greater than the timestamp of those events currently in the queue, this
      * method performs an aggregation before clearing the work queue and adding the item.
      *
-     * Note that simplistic implementation only works assuming the timestamps are in order.
+     * Note that this is a simplistic implementation that only works assuming the timestamps are in order. Slightly
+     * out of order timestamps could be handled either with an intermediate buffer or with multiple buckets and something
+     * to evict them after a set time period.
      *
      * @param s an SPSEvent
      * @return true as specified in {@link LinkedList#add(Object)}
