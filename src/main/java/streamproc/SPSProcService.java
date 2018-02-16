@@ -16,17 +16,30 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 /**
- * A FlowableEmitter implementation that processes the SPS events as prescribed
+ * A service that processes the SPS events as prescribed
  */
 public class SPSProcService {
 
     private static final Logger logger = LoggerFactory.getLogger(SPSProcService.class);
+
+    // these are expensive to instantiate, hence static
     private static final ObjectMapper mapper = new ObjectMapper();
-    private WebTarget sseTarget;
+
+    /**
+     * The target for the incoming SSE stream
+     */
+    private final WebTarget sseTarget;
+
     private SseEventSource sse;
 
+    /**
+     * A queue to submit stuff to
+     */
     private SPSEventQueue queue = new SPSEventQueue();
 
+    /**
+     * A cancellation flag
+     */
     private final AtomicBoolean isCancelled = new AtomicBoolean(false);
 
 
@@ -35,6 +48,10 @@ public class SPSProcService {
         sseTarget = sseClient.target("https://tweet-service.herokuapp.com/sps");
     }
 
+    /**
+     * Starts consuming the SSE stream using this object's {@link SPSProcService#onMessage(InboundSseEvent)} method
+     * @throws Exception
+     */
     public void start() throws Exception {
         sse = SseEventSource
                 .target(sseTarget)

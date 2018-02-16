@@ -4,14 +4,39 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.util.Objects;
 
+/**
+ * POJO/Bean class that encapsulates a single play event
+ */
 public class SPSEvent {
 
+    /**
+     * The hardware device
+     */
     private String device;
+
+    /**
+     * A status code
+     */
     private String sev;
+
+    /**
+     * The title being played
+     */
     private String title;
+
+    /**
+     * The originating timestamp
+     */
     private String country;
+
+    /**
+     * UNIX epoch time
+     */
     private long time;
 
+    /**
+     * Empty constructor explicitly declared for Jackson
+     */
     public SPSEvent() {}
 
     @JsonIgnore
@@ -63,6 +88,9 @@ public class SPSEvent {
         this.time = time;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override public String toString() {
         final StringBuilder sb = new StringBuilder("SPSEvent{");
         sb.append("device='").append(device).append('\'');
@@ -74,6 +102,9 @@ public class SPSEvent {
         return sb.toString();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override public boolean equals(Object o) {
         if (this == o)
             return true;
@@ -87,6 +118,9 @@ public class SPSEvent {
                 Objects.equals(country, spsEvent.country);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override public int hashCode() {
 
         return Objects.hash(device, sev, title, country, time);

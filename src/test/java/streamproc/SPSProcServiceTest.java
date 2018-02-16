@@ -15,6 +15,9 @@ import javax.ws.rs.sse.SseEventSource;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 
+/**
+ * This was just to make sure the code to consume SSE streams worked
+ */
 public class SPSProcServiceTest {
 
     private static final Logger logger = LoggerFactory.getLogger(SPSProcServiceTest.class);
@@ -49,6 +52,8 @@ public class SPSProcServiceTest {
         } catch (InterruptedException e) {
             logger.error("Unrecoverable error", e);
             throw new RuntimeException(e);
+        } finally {
+            sse.close();
         }
     }
 
